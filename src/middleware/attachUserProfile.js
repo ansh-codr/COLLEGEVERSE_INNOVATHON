@@ -24,23 +24,58 @@ const resolveCollegeByDomain = async (domain) => {
   return { id: doc.id, ...doc.data() };
 };
 
+const resolveRoleOverride = async (email) => {
+  const snapshot = await db
+    .collection('roleOverrides')
+    .where('email', '==', email)
+    .limit(1)
+    .get();
+  if (snapshot.empty) return null;
+  const doc = snapshot.docs[0];
+  return { id: doc.id, ...doc.data() };
+};
+
+const ensureProfile = async ({ role, email, collegeId, profile }) => {
+  if (!role || !email) return;
+  const collection = role === Roles.FACULTY
+    ? 'faculty'
+    : role === Roles.RECRUITER
+      ? 'recruiters'
+      : 'students';
+
+  const existing = await db.collection(collection).where('email', '==', email).limit(1).get();
+  if (!existing.empty) return;
+
+  const doc = {
+    ...(profile || {}),
+    email,
+    collegeId: collegeId || (profile && profile.collegeId) || null,
+  };
+
+  await db.collection(collection).add(doc);
+};
+
 const createUserDoc = async ({ uid, email }) => {
+  const roleOverride = await resolveRoleOverride(email);
   const domain = getEmailDomain(email);
   const college = domain ? await resolveCollegeByDomain(domain) : null;
 
-  if (!college) {
+  if (!college && !roleOverride) {
     throw new CustomError('College domain not registered', 403, 'college_domain_invalid');
   }
 
-  const role = Roles.STUDENT;
+  const role = roleOverride?.role || Roles.STUDENT;
+  const subRole = roleOverride?.subRole || null;
+  const verificationStatus = roleOverride?.verificationStatus || 'pending';
+  const collegeId = roleOverride?.collegeId || (college ? college.id : null);
 
   const userDoc = {
     uid,
     email,
     role,
-    subRole: null,
-    collegeId: college ? college.id : null,
-    verificationStatus: 'pending',
+    subRole,
+    collegeId,
+    verificationStatus,
     schemaVersion: 1,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
@@ -50,11 +85,20 @@ const createUserDoc = async ({ uid, email }) => {
 
   await incrementPlatformStats({
     totalUsers: 1,
-    totalStudents: 1,
+    totalStudents: role === Roles.STUDENT ? 1 : 0,
   });
 
-  await incrementCollegeStats(userDoc.collegeId, {
-    totalStudents: 1,
+  if (role === Roles.STUDENT && userDoc.collegeId) {
+    await incrementCollegeStats(userDoc.collegeId, {
+      totalStudents: 1,
+    });
+  }
+
+  await ensureProfile({
+    role,
+    email,
+    collegeId: userDoc.collegeId,
+    profile: roleOverride?.profile || null,
   });
   return userDoc;
 };

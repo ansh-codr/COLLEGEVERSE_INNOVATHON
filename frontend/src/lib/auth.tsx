@@ -2,6 +2,8 @@ import React, { createContext, useContext, useState, useCallback, useEffect } fr
 import { useNavigate } from 'react-router-dom';
 import type { Session, UserRole, Student, Faculty, Recruiter } from './types';
 import { api } from './mockApi';
+import { auth } from './firebase';
+import { signOut } from 'firebase/auth';
 
 interface AuthState {
   session: (Session & { user?: Student | Faculty | Recruiter }) | null;
@@ -38,6 +40,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const logout = useCallback(() => {
     localStorage.removeItem('cv_session');
     setSession(null);
+    signOut(auth).catch(() => undefined);
   }, []);
 
   const isVerified = useCallback(() => {

@@ -9,6 +9,7 @@ const eventsRoutes = require('./v1/events.routes');
 const recruiterRoutes = require('./v1/recruiter.routes');
 const studentRoutes = require('./v1/student.routes');
 const userRoutes = require('./v1/user.routes');
+const compatRoutes = require('./v1/compat.routes');
 
 const router = express.Router();
 
@@ -21,5 +22,6 @@ router.use('/events', eventsRoutes);
 router.use('/recruiter', recruiterRoutes);
 router.use('/student', studentRoutes);
 router.use('/user', userRoutes);
+router.use('/compat', compatRoutes);
 
 module.exports = router;
