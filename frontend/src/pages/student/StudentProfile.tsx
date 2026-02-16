@@ -3,8 +3,9 @@ import { useAuth } from '@/lib/auth';
 import { useState, useEffect } from 'react';
 import { api } from '@/lib/mockApi';
 import type { Student, WalletSBT } from '@/lib/types';
-import { Save, X, Sparkles, Loader2, Copy, Check, Shield, ExternalLink } from 'lucide-react';
+import { Save, X, Sparkles, Copy, Check, Shield, ExternalLink } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import DotLottieLoader from '@/components/Loader';
 
 export default function StudentProfile() {
   const { session, refreshUser } = useAuth();
@@ -140,7 +141,7 @@ export default function StudentProfile() {
               <h3 className="font-bold text-foreground mb-3 flex items-center gap-2"><Sparkles className="h-5 w-5 text-violet" />AI Resume Generator</h3>
               {aiLoading ? (
                 <div className="flex flex-col items-center justify-center py-12 gap-3">
-                  <Loader2 className="h-8 w-8 animate-spin text-violet" />
+                  <DotLottieLoader size={96} />
                   <p className="text-sm text-muted-foreground">Generating your AI-powered resume...</p>
                 </div>
               ) : (

@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { api } from '@/lib/mockApi';
 import type { Faculty } from '@/lib/types';
 import { BarChart3 } from 'lucide-react';
+import DotLottieLoader from '@/components/Loader';
 
 export default function CollegeAnalytics() {
   const { session } = useAuth();
@@ -12,7 +13,15 @@ export default function CollegeAnalytics() {
 
   useEffect(() => { api.getCollegeAnalytics(faculty.collegeId).then(setData); }, [faculty.collegeId]);
 
-  if (!data) return <DashboardLayout role="faculty"><p className="text-muted-foreground">Loading...</p></DashboardLayout>;
+  if (!data) {
+    return (
+      <DashboardLayout role="faculty">
+        <div className="flex justify-center py-12">
+          <DotLottieLoader size={160} />
+        </div>
+      </DashboardLayout>
+    );
+  }
 
   const cards = [
     { label: 'Total Students', value: data.totalStudents },

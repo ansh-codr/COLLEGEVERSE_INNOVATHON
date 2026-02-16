@@ -3,8 +3,9 @@ import { useAuth } from '@/lib/auth';
 import { useEffect, useState } from 'react';
 import { api } from '@/lib/mockApi';
 import type { Student, Faculty } from '@/lib/types';
-import { UserCheck, Check, X, Loader2 } from 'lucide-react';
+import { UserCheck, Check, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import DotLottieLoader from '@/components/Loader';
 
 export default function CollegeVerification() {
   const { session } = useAuth();
@@ -46,7 +47,7 @@ export default function CollegeVerification() {
                 </div>
                 <div className="flex gap-2">
                   <button disabled={loading === s.id} onClick={() => handleApprove(s.id)} className="flex items-center gap-1 px-3 py-2 rounded-lg bg-success/10 text-success text-sm font-medium hover:bg-success/20 disabled:opacity-50">
-                    {loading === s.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />} Approve
+                    {loading === s.id ? <DotLottieLoader size={16} /> : <Check className="h-4 w-4" />} Approve
                   </button>
                   <button disabled={loading === s.id} onClick={() => handleReject(s.id)} className="flex items-center gap-1 px-3 py-2 rounded-lg bg-destructive/10 text-destructive text-sm font-medium hover:bg-destructive/20 disabled:opacity-50">
                     <X className="h-4 w-4" /> Reject

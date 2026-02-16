@@ -5,13 +5,20 @@ import type { College } from '@/lib/types';
 import { MapPin, Users, Calendar, ArrowLeft } from 'lucide-react';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
+import DotLottieLoader from '@/components/Loader';
 
 export default function CollegeDetail() {
   const { id } = useParams();
   const [college, setCollege] = useState<College | null>(null);
   useEffect(() => { if (id) api.getCollegeById(id).then(c => setCollege(c || null)); }, [id]);
 
-  if (!college) return <div className="min-h-screen bg-background flex items-center justify-center text-muted-foreground">Loading...</div>;
+  if (!college) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <DotLottieLoader />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background"><Navbar />

@@ -2,8 +2,9 @@ import DashboardLayout from '@/components/layout/DashboardLayout';
 import { useAuth } from '@/lib/auth';
 import { useState, useEffect } from 'react';
 import { api } from '@/lib/mockApi';
-import { Shield, Award, ExternalLink, Loader2, Wallet, Hash } from 'lucide-react';
+import { Shield, Award, ExternalLink, Wallet, Hash } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import DotLottieLoader from '@/components/Loader';
 
 interface AdminStudent {
   id: string;
@@ -114,7 +115,7 @@ export default function AdminPanel() {
 
         {/* Student table */}
         {loading ? (
-          <div className="flex justify-center py-12"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>
+          <div className="flex justify-center py-12"><DotLottieLoader size={120} /></div>
         ) : (
           <div className="glass-card overflow-hidden">
             <table className="w-full text-sm">
@@ -157,7 +158,7 @@ export default function AdminPanel() {
                           disabled={actionLoading === s.id}
                           className="px-3 py-1.5 rounded-lg bg-green-600 text-white text-xs font-medium hover:bg-green-700 disabled:opacity-50 inline-flex items-center gap-1"
                         >
-                          {actionLoading === s.id ? <Loader2 className="h-3 w-3 animate-spin" /> : <Shield className="h-3 w-3" />}
+                          {actionLoading === s.id ? <DotLottieLoader size={14} /> : <Shield className="h-3 w-3" />}
                           Verify
                         </button>
                       ) : (
@@ -214,7 +215,7 @@ export default function AdminPanel() {
                   disabled={!mintForm.title || !mintForm.reason || actionLoading === mintModal}
                   className="flex-1 px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-semibold disabled:opacity-50 flex items-center justify-center gap-2"
                 >
-                  {actionLoading === mintModal ? <Loader2 className="h-4 w-4 animate-spin" /> : <Award className="h-4 w-4" />}
+                  {actionLoading === mintModal ? <DotLottieLoader size={16} /> : <Award className="h-4 w-4" />}
                   Mint on Polygon
                 </button>
                 <button onClick={() => setMintModal(null)} className="px-4 py-2 rounded-lg bg-secondary text-secondary-foreground text-sm">Cancel</button>

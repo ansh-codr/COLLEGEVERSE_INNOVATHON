@@ -3,8 +3,9 @@ import { useAuth } from '@/lib/auth';
 import { useEffect, useState } from 'react';
 import { api } from '@/lib/mockApi';
 import type { Gig, GigApplication, Student } from '@/lib/types';
-import { Zap, Search, AlertTriangle, Loader2 } from 'lucide-react';
+import { Zap, Search, AlertTriangle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import DotLottieLoader from '@/components/Loader';
 
 export default function StudentMicroGigs() {
   const { session, isVerified } = useAuth();
@@ -99,7 +100,7 @@ export default function StudentMicroGigs() {
                       <span className="text-xs px-3 py-1 rounded-lg bg-success/10 text-success">Applied ✓</span>
                     ) : (
                       <button disabled={!verified || loading === g.id} onClick={() => handleApply(g.id)} className="text-xs px-3 py-1.5 rounded-lg bg-primary text-primary-foreground disabled:opacity-50 flex items-center gap-1">
-                        {loading === g.id ? <Loader2 className="h-3 w-3 animate-spin" /> : null} Apply
+                        {loading === g.id ? <DotLottieLoader size={14} /> : null} Apply
                       </button>
                     )}
                   </div>
@@ -117,7 +118,7 @@ export default function StudentMicroGigs() {
                 </div>
                 <div className="flex gap-2">
                   {a.status === 'applied' && <button onClick={() => handleWithdraw(a.id)} className="text-xs px-3 py-1.5 rounded-lg bg-destructive/10 text-destructive">Withdraw</button>}
-                  {a.status === 'accepted' && <button disabled={loading === a.id} onClick={() => handleComplete(a)} className="text-xs px-3 py-1.5 rounded-lg bg-success/10 text-success flex items-center gap-1">{loading === a.id ? <Loader2 className="h-3 w-3 animate-spin" /> : null}Mark Complete</button>}
+                  {a.status === 'accepted' && <button disabled={loading === a.id} onClick={() => handleComplete(a)} className="text-xs px-3 py-1.5 rounded-lg bg-success/10 text-success flex items-center gap-1">{loading === a.id ? <DotLottieLoader size={14} /> : null}Mark Complete</button>}
                 </div>
               </div>
             ))}
