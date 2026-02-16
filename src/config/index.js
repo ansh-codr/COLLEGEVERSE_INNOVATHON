@@ -37,7 +37,7 @@ const envDefaults = {
     requireEmailVerification: true,
   },
   production: {
-    corsOrigin: 'https://collegeverse.in',
+    corsOrigin: 'https://collegeverse1.netlify.app,https://collegeverse.in',
     rateLimitMax: 100,
     logLevel: 'info',
     requireEmailVerification: false,
@@ -60,7 +60,7 @@ const baseConfig = {
     cors: {
       origin: parseOrigins(process.env.CORS_ORIGIN || defaults.corsOrigin),
       methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-      credentials: false,
+      credentials: true,
     },
     rateLimit: {
       windowMs: Number(process.env.RATE_LIMIT_WINDOW_MS) || 15 * 60 * 1000,
