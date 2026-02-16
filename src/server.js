@@ -14,6 +14,8 @@ server.listen(config.server.port, () => {
   logger.info(`CollegeVerse API listening on port ${config.server.port}`);
 });
 
+module.exports = server;
+
 const shutdown = (signal) => {
   logger.info(`Received ${signal}, shutting down gracefully`);
   server.close(() => {

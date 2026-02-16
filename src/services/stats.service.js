@@ -2,6 +2,16 @@ const admin = require('./firebaseAdmin');
 const db = require('./firestore');
 const { invalidatePlatformStatsCache, invalidateCollegeStatsCache } = require('./analytics.service');
 
+// In local web3-only dev mode, Firebase Admin is disabled and these stats updates
+// should become no-ops.
+if (!admin) {
+  module.exports = {
+    incrementPlatformStats: async () => {},
+    incrementCollegeStats: async () => {},
+  };
+  return;
+}
+
 const FIELD = admin.firestore.FieldValue;
 const PLATFORM_DOC = 'platform';
 

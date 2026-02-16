@@ -19,6 +19,11 @@ let provider = null;
 let adminWallet = null;
 let contract = null;
 
+const isLocalRpc = (rpcUrl) => {
+  if (!rpcUrl) return false;
+  return rpcUrl.includes('127.0.0.1') || rpcUrl.includes('localhost');
+};
+
 /**
  * Initialize the Web3 provider, admin wallet, and contract instance
  */
@@ -29,8 +34,10 @@ const init = () => {
   const adminKey = process.env.ADMIN_WALLET_PRIVATE_KEY;
   const contractAddress = process.env.SBT_CONTRACT_ADDRESS;
 
+  const networkName = isLocalRpc(rpcUrl) ? 'local' : 'polygon-amoy';
+
   if (!adminKey || !contractAddress) {
-    logger.warn('[Web3] Missing ADMIN_WALLET_PRIVATE_KEY or SBT_CONTRACT_ADDRESS — Web3 disabled');
+    logger.warn(`[Web3] Missing ADMIN_WALLET_PRIVATE_KEY or SBT_CONTRACT_ADDRESS — Web3 disabled (${networkName})`);
     return { provider: null, adminWallet: null, contract: null };
   }
 
@@ -38,7 +45,7 @@ const init = () => {
   adminWallet = new ethers.Wallet(adminKey, provider);
   contract = new ethers.Contract(contractAddress, SBT_ABI, adminWallet);
 
-  logger.info(`[Web3] Connected to Polygon Amoy | Admin: ${adminWallet.address} | Contract: ${contractAddress}`);
+  logger.info(`[Web3] Connected | Network: ${networkName} | Admin: ${adminWallet.address} | Contract: ${contractAddress}`);
   return { provider, adminWallet, contract };
 };
 
@@ -94,7 +101,7 @@ const mintSBT = async (toAddress, reason, metadata = {}) => {
     tokenId,
     txHash: receipt.hash,
     contractAddress: process.env.SBT_CONTRACT_ADDRESS,
-    network: 'polygon-amoy',
+    network: isLocalRpc(process.env.POLYGON_AMOY_RPC_URL) ? 'local' : 'polygon-amoy',
   };
 };
 

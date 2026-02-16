@@ -4,7 +4,7 @@
  */
 const { ethers } = require('ethers');
 const crypto = require('crypto');
-const { db } = require('./firebaseAdmin');
+const db = require('./firestore');
 const logger = require('../utils/logger');
 
 const COLLECTION = 'wallets';
@@ -48,6 +48,9 @@ const decrypt = ({ iv, encrypted, tag }) => {
  * @returns {{ address: string }}
  */
 const generateWallet = async (studentId) => {
+  if (!db || typeof db.collection !== 'function') {
+    throw new Error('Wallet storage requires Firestore, but Firebase Admin is disabled. Configure Firebase credentials or set DISABLE_FIREBASE_ADMIN=false.');
+  }
   // Check if wallet already exists
   const existing = await db.collection(COLLECTION).doc(studentId).get();
   if (existing.exists) {
@@ -73,6 +76,7 @@ const generateWallet = async (studentId) => {
  * Get wallet address for a student
  */
 const getWalletAddress = async (studentId) => {
+  if (!db || typeof db.collection !== 'function') return null;
   const doc = await db.collection(COLLECTION).doc(studentId).get();
   if (!doc.exists) return null;
   return doc.data().address;
@@ -82,6 +86,7 @@ const getWalletAddress = async (studentId) => {
  * Get full wallet info (address only — never expose private key via API)
  */
 const getWalletInfo = async (studentId) => {
+  if (!db || typeof db.collection !== 'function') return null;
   const doc = await db.collection(COLLECTION).doc(studentId).get();
   if (!doc.exists) return null;
   return {

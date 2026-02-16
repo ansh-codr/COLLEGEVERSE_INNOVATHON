@@ -3,14 +3,28 @@
  */
 const web3Service = require('../services/web3.service');
 const walletService = require('../services/wallet.service');
-const { db } = require('../services/firebaseAdmin');
+const db = require('../services/firestore');
 const logger = require('../utils/logger');
+
+const ensureDb = (res) => {
+  if (!db || typeof db.collection !== 'function') {
+    res.status(503).json({
+      status: 'error',
+      error: {
+        message: 'Firestore is disabled in this environment (DISABLE_FIREBASE_ADMIN=true). Configure Firebase credentials to use this endpoint.',
+      },
+    });
+    return false;
+  }
+  return true;
+};
 
 /**
  * GET /sbt/students — List all students (for admin panel)
  */
 const listStudents = async (req, res) => {
   try {
+    if (!ensureDb(res)) return;
     const snapshot = await db.collection('users').where('role', '==', 'student').get();
     const students = [];
 
@@ -41,6 +55,7 @@ const listStudents = async (req, res) => {
  */
 const verifyStudent = async (req, res) => {
   try {
+    if (!ensureDb(res)) return;
     const { studentId } = req.params;
 
     // Generate custodial wallet

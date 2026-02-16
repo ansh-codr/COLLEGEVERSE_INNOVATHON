@@ -5,8 +5,21 @@ const config = require('../config');
 
 let app;
 
+const isFirebaseAdminDisabled = () => {
+  // Local dev convenience: allow running the server without Firebase credentials.
+  // IMPORTANT: Do not use this in production.
+  return process.env.DISABLE_FIREBASE_ADMIN === 'true';
+};
+
 const initFirebaseAdmin = () => {
   if (app) return app;
+
+  if (isFirebaseAdminDisabled()) {
+    // Provide a soft-fail mode for local development where Firebase isn't needed.
+    // We intentionally DO NOT initialize firebase-admin.
+    app = null;
+    return null;
+  }
 
   const hasInlineCreds = !!(
     config.firebase.projectId
@@ -76,4 +89,8 @@ const initFirebaseAdmin = () => {
 
 initFirebaseAdmin();
 
-module.exports = admin;
+if (isFirebaseAdminDisabled()) {
+  module.exports = null;
+} else {
+  module.exports = admin;
+}
