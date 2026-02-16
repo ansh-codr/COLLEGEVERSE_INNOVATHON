@@ -6,6 +6,9 @@ import { Users, AlertCircle } from 'lucide-react';
 import Navbar from '@/components/layout/Navbar';
 import DotLottieLoader from '@/components/Loader';
 
+const AUTH_DOT_LOTTIE_SRC =
+  'https://lottie.host/7a753e3c-14a7-4657-b5dc-cd8c6b952ffd/F4qKTN4Ubz.lottie';
+
 export default function SignupCollege() {
   const { signup, loading } = useAuth();
   const navigate = useNavigate();
@@ -80,7 +83,7 @@ export default function SignupCollege() {
               <input type="password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} required placeholder="••••••••" className="w-full px-3 py-2.5 rounded-lg bg-input border border-border text-foreground text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50" />
             </div>
             <button type="submit" disabled={loading} className="w-full px-4 py-2.5 rounded-lg bg-primary text-primary-foreground text-sm font-semibold hover:opacity-90 transition-opacity disabled:opacity-50 flex items-center justify-center gap-2">
-              {loading ? <><DotLottieLoader size={18} /> Creating account...</> : 'Create Account'}
+              {loading ? <><DotLottieLoader size={18} src={AUTH_DOT_LOTTIE_SRC} /> Creating account...</> : 'Create Account'}
             </button>
             <p className="text-center text-sm text-muted-foreground">
               Already have an account?{' '}
