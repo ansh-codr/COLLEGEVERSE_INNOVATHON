@@ -14,9 +14,22 @@ dotenv.config({ path: envFile });
 dotenv.config({ path: path.resolve(process.cwd(), '.env') });
 
 const parseOrigins = (value) => {
-  if (!value) return value;
-  const list = value.split(',').map((item) => item.trim()).filter(Boolean);
-  return list.length <= 1 ? list[0] : list;
+  if (!value) return [];
+  return value.split(',').map((item) => item.trim()).filter(Boolean);
+};
+
+const buildCorsOriginMatcher = ({ origins, allowNetlifyPreviews }) => {
+  return (origin, callback) => {
+    if (!origin) return callback(null, true);
+
+    if (origins.includes(origin)) return callback(null, true);
+
+    if (allowNetlifyPreviews && /^https:\/\/[a-z0-9-]+\.netlify\.app$/i.test(origin)) {
+      return callback(null, true);
+    }
+
+    return callback(new Error(`CORS blocked for origin: ${origin}`), false);
+  };
 };
 
 const resolveTrustProxy = ({ nodeEnv, rawValue }) => {
@@ -51,6 +64,10 @@ const envDefaults = {
 };
 
 const defaults = envDefaults[env] || envDefaults.development;
+const corsOrigins = parseOrigins(process.env.CORS_ORIGIN || defaults.corsOrigin);
+const allowNetlifyPreviews = process.env.CORS_ALLOW_NETLIFY_PREVIEWS
+  ? process.env.CORS_ALLOW_NETLIFY_PREVIEWS === 'true'
+  : env === 'production';
 
 const baseConfig = {
   env,
@@ -64,7 +81,7 @@ const baseConfig = {
   },
   security: {
     cors: {
-      origin: parseOrigins(process.env.CORS_ORIGIN || defaults.corsOrigin),
+      origin: buildCorsOriginMatcher({ origins: corsOrigins, allowNetlifyPreviews }),
       methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
       credentials: true,
     },

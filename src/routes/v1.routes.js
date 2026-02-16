@@ -12,8 +12,15 @@ const userRoutes = require('./v1/user.routes');
 const compatRoutes = require('./v1/compat.routes');
 const aiRoutes = require('./v1/ai.routes');
 const sbtRoutes = require('./v1/sbt.routes');
+const { ok } = require('../utils/response');
 
 const router = express.Router();
+
+router.get('/', (req, res) => ok(res, {
+	status: 'ok',
+	message: 'CollegeVerse API v1 online',
+	timestamp: new Date().toISOString(),
+}));
 
 router.use('/status', statusRoutes);
 router.use('/auth', authRoutes);
