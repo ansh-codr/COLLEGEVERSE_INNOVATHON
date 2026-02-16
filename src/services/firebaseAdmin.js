@@ -17,8 +17,25 @@ const initFirebaseAdmin = () => {
   const isTestEmulator = config.env === 'test' && process.env.FIRESTORE_EMULATOR_HOST;
 
   const isCloudRun = !!process.env.K_SERVICE;
+  const isRender = !!process.env.RENDER;
 
-  if (!hasInlineCreds && !config.firebase.serviceAccountPath && !isTestEmulator && !isCloudRun) {
+  // Support GOOGLE_APPLICATION_CREDENTIALS_JSON env var (Render, etc.)
+  if (process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON && !hasInlineCreds && !config.firebase.serviceAccountPath) {
+    try {
+      const sa = JSON.parse(process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON);
+      config.firebase.projectId = config.firebase.projectId || sa.project_id;
+      config.firebase.clientEmail = sa.client_email;
+      config.firebase.privateKey = sa.private_key;
+    } catch (_) { /* ignore parse errors */ }
+  }
+
+  const hasInlineCredsUpdated = !!(
+    config.firebase.projectId
+    && config.firebase.clientEmail
+    && config.firebase.privateKey
+  );
+
+  if (!hasInlineCredsUpdated && !hasInlineCreds && !config.firebase.serviceAccountPath && !isTestEmulator && !isCloudRun && !isRender) {
     throw new Error('Firebase admin credentials are missing');
   }
 
@@ -31,7 +48,7 @@ const initFirebaseAdmin = () => {
     const raw = fs.readFileSync(config.firebase.serviceAccountPath, 'utf8');
     const serviceAccount = JSON.parse(raw);
     credential = admin.credential.cert(serviceAccount);
-  } else if (hasInlineCreds) {
+  } else if (hasInlineCreds || hasInlineCredsUpdated) {
     credential = admin.credential.cert({
       projectId: config.firebase.projectId,
       clientEmail: config.firebase.clientEmail,

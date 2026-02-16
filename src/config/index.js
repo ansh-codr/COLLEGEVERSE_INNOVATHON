@@ -40,7 +40,7 @@ const envDefaults = {
     corsOrigin: 'https://collegeverse.in',
     rateLimitMax: 100,
     logLevel: 'info',
-    requireEmailVerification: true,
+    requireEmailVerification: false,
   },
 };
 
