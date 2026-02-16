@@ -16,7 +16,9 @@ const initFirebaseAdmin = () => {
 
   const isTestEmulator = config.env === 'test' && process.env.FIRESTORE_EMULATOR_HOST;
 
-  if (!hasInlineCreds && !config.firebase.serviceAccountPath && !isTestEmulator) {
+  const isCloudRun = !!process.env.K_SERVICE;
+
+  if (!hasInlineCreds && !config.firebase.serviceAccountPath && !isTestEmulator && !isCloudRun) {
     throw new Error('Firebase admin credentials are missing');
   }
 
