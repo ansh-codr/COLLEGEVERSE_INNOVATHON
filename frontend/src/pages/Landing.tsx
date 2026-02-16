@@ -11,6 +11,7 @@ import heroBg from '@/assets/hero-bg.jpg';
 import cvrCoin from '@/assets/cvr-coin.png';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
+import ShaderShowcase from '@/components/ui/hero';
 
 const fadeUp = { hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } };
 
@@ -120,26 +121,14 @@ export default function Landing() {
               </div>
             </motion.div>
 
-            {/* Spinning CVR Coin */}
+            {/* Shader Coin Showcase */}
             <motion.div
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.8, delay: 0.3 }}
               className="flex-shrink-0 relative"
             >
-              <div className="relative w-64 h-64 sm:w-80 sm:h-80 lg:w-96 lg:h-96">
-                {/* Outer yellow glow */}
-                <div className="absolute inset-4 rounded-full bg-warning opacity-20 blur-3xl animate-pulse-slow" />
-                {/* Spinning coin */}
-                <div className="relative w-full h-full" style={{ perspective: '1000px' }}>
-                  <img
-                    src={cvrCoin}
-                    alt="CVR Coin"
-                    className="w-full h-full object-contain animate-spin-slow coin-glow"
-                    style={{ transformStyle: 'preserve-3d', mixBlendMode: 'screen' }}
-                  />
-                </div>
-              </div>
+              <ShaderShowcase coinSrc={cvrCoin} />
             </motion.div>
           </div>
         </div>
