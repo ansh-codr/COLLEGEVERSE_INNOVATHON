@@ -20,12 +20,14 @@ const initFirebaseAdmin = () => {
   const isRender = !!process.env.RENDER;
 
   // Support GOOGLE_APPLICATION_CREDENTIALS_JSON env var (Render, etc.)
-  if (process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON && !hasInlineCreds && !config.firebase.serviceAccountPath) {
+  if (process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON && !hasInlineCreds) {
     try {
       const sa = JSON.parse(process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON);
       config.firebase.projectId = config.firebase.projectId || sa.project_id;
       config.firebase.clientEmail = sa.client_email;
       config.firebase.privateKey = sa.private_key;
+      // Clear serviceAccountPath so we use inline creds instead
+      config.firebase.serviceAccountPath = '';
     } catch (_) { /* ignore parse errors */ }
   }
 
@@ -34,6 +36,11 @@ const initFirebaseAdmin = () => {
     && config.firebase.clientEmail
     && config.firebase.privateKey
   );
+
+  // If serviceAccountPath is set but doesn't exist, clear it (e.g. Render deploy)
+  if (config.firebase.serviceAccountPath && !fs.existsSync(config.firebase.serviceAccountPath)) {
+    config.firebase.serviceAccountPath = '';
+  }
 
   if (!hasInlineCredsUpdated && !hasInlineCreds && !config.firebase.serviceAccountPath && !isTestEmulator && !isCloudRun && !isRender) {
     throw new Error('Firebase admin credentials are missing');
