@@ -15,6 +15,7 @@
     "test:watch": "jest -c jest.unit.config.js --watch",
     "firebase:preflight": "NODE_ENV=development node scripts/firebasePreflight.js",
     "seed:demo": "NODE_ENV=development node scripts/seedDemo.js",
+    "seed:data": "NODE_ENV=development node scripts/seedDemoData.js",
     "seed:firestore": "NODE_ENV=development node scripts/seedFirestore.js"
   },
   "dependencies": {
