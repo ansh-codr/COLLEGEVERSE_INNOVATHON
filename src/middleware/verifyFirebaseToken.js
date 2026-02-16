@@ -1,6 +1,7 @@
 const admin = require('../services/firebaseAdmin');
 const CustomError = require('../utils/CustomError');
 const { recordAuthFailure } = require('../services/metrics.service');
+const config = require('../config');
 
 const verifyFirebaseToken = async (req, res, next) => {
   try {
@@ -13,7 +14,7 @@ const verifyFirebaseToken = async (req, res, next) => {
 
     const decoded = await admin.auth().verifyIdToken(token);
 
-    if (!decoded.email_verified) {
+    if (config.auth.requireEmailVerification && !decoded.email_verified) {
       throw new CustomError('Email verification required', 403, 'email_unverified');
     }
 

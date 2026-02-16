@@ -42,6 +42,7 @@ const initFirebaseAdmin = () => {
   app = admin.initializeApp({
     credential,
     projectId: config.firebase.projectId || process.env.GCLOUD_PROJECT || 'demo-test',
+    storageBucket: config.firebase.storageBucket || undefined,
   });
 
   return app;

@@ -8,10 +8,12 @@
     "start": "node src/server.js",
     "lint": "echo \"No lint configured\"",
     "build": "echo \"No build step\"",
-    "test": "jest -c jest.unit.config.js --runInBand --coverage",
-    "test:unit": "jest -c jest.unit.config.js --runInBand --coverage",
+    "test": "jest -c jest.unit.config.js --runInBand",
+    "test:unit": "jest -c jest.unit.config.js --runInBand",
+    "test:coverage": "jest -c jest.unit.config.js --runInBand --coverage",
     "test:integration": "firebase emulators:exec --project demo-test --only firestore,auth \"jest -c jest.integration.config.js --runInBand\"",
-    "test:watch": "jest -c jest.unit.config.js --watch"
+    "test:watch": "jest -c jest.unit.config.js --watch",
+    "firebase:preflight": "NODE_ENV=development node scripts/firebasePreflight.js"
   },
   "dependencies": {
     "cors": "^2.8.5",

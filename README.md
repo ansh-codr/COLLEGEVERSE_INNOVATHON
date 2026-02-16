@@ -44,6 +44,14 @@ CollegeVerse is a Node.js + Express backend for student verification, profiles, 
 - Install deps: `npm ci`
 - Start API: `npm run start`
 
+## Firebase Blaze Readiness Check
+- Ensure these are set in your active env file:
+  - `FIREBASE_PROJECT_ID`
+  - `FIREBASE_SERVICE_ACCOUNT_PATH` (or inline admin credentials)
+  - `FIREBASE_STORAGE_BUCKET`
+- Run preflight:
+  - `npm run firebase:preflight`
+
 ## Deployment Overview
 - CI/CD pipeline: [.github/workflows/ci-cd.yml](.github/workflows/ci-cd.yml)
 - Environments: development, staging, production

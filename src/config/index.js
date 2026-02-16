@@ -28,16 +28,19 @@ const envDefaults = {
     corsOrigin: 'http://localhost:3000',
     rateLimitMax: 300,
     logLevel: 'debug',
+    requireEmailVerification: false,
   },
   staging: {
     corsOrigin: 'https://staging.collegeverse.in',
     rateLimitMax: 200,
     logLevel: 'info',
+    requireEmailVerification: true,
   },
   production: {
     corsOrigin: 'https://collegeverse.in',
     rateLimitMax: 100,
     logLevel: 'info',
+    requireEmailVerification: true,
   },
 };
 
@@ -77,11 +80,17 @@ const baseConfig = {
     clientEmail: process.env.FIREBASE_CLIENT_EMAIL || '',
     privateKey: process.env.FIREBASE_PRIVATE_KEY || '',
     serviceAccountPath: process.env.FIREBASE_SERVICE_ACCOUNT_PATH || '',
+    storageBucket: process.env.FIREBASE_STORAGE_BUCKET || '',
   },
   observability: {
     sentryDsn: process.env.SENTRY_DSN || '',
     alertWebhookUrl: process.env.ALERT_WEBHOOK_URL || '',
     metricsLogging: process.env.METRICS_LOGGING !== 'false',
+  },
+  auth: {
+    requireEmailVerification: process.env.AUTH_REQUIRE_EMAIL_VERIFIED
+      ? process.env.AUTH_REQUIRE_EMAIL_VERIFIED === 'true'
+      : defaults.requireEmailVerification,
   },
 };
 

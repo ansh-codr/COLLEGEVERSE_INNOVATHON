@@ -37,6 +37,8 @@ router.get('/', async (req, res) => {
     memoryUsage: process.memoryUsage(),
     env: config.env,
     dbConnected: dbStatus.ok,
+    storageBucketConfigured: Boolean(config.firebase.storageBucket),
+    storageBucket: config.firebase.storageBucket || null,
     lastAnalyticsSnapshotTime,
     timestamp: new Date().toISOString(),
   });
