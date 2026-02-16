@@ -92,6 +92,12 @@ const baseConfig = {
       ? process.env.AUTH_REQUIRE_EMAIL_VERIFIED === 'true'
       : defaults.requireEmailVerification,
   },
+  web3: {
+    rpcUrl: process.env.POLYGON_AMOY_RPC_URL || 'https://rpc-amoy.polygon.technology',
+    contractAddress: process.env.SBT_CONTRACT_ADDRESS || '',
+    adminPrivateKey: process.env.ADMIN_WALLET_PRIVATE_KEY || '',
+    walletEncryptionKey: process.env.WALLET_ENCRYPTION_KEY || '',
+  },
 };
 
 module.exports = baseConfig;

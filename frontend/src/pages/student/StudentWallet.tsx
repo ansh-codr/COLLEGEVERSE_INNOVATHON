@@ -3,12 +3,23 @@ import { useAuth } from '@/lib/auth';
 import { useEffect, useState } from 'react';
 import { api } from '@/lib/mockApi';
 import type { WalletSBT } from '@/lib/types';
-import { Wallet, Shield, Award, Hexagon } from 'lucide-react';
+import { Wallet, Shield, Award, Hexagon, ExternalLink } from 'lucide-react';
+
+const EXPLORER = 'https://amoy.polygonscan.com';
 
 export default function StudentWallet() {
   const { session } = useAuth();
   const [sbts, setSbts] = useState<WalletSBT[]>([]);
-  useEffect(() => { if (session) api.getWallet(session.userId).then(setSbts); }, [session]);
+  const [walletInfo, setWalletInfo] = useState<{ address: string | null }>({ address: null });
+
+  useEffect(() => {
+    if (session) {
+      api.sbtGetTokens(session.userId).then(setSbts).catch(() => {
+        api.getWallet(session.userId).then(setSbts).catch(() => {});
+      });
+      api.sbtGetWallet(session.userId).then((w: any) => setWalletInfo(w)).catch(() => {});
+    }
+  }, [session]);
 
   return (
     <DashboardLayout role="student">
@@ -18,8 +29,16 @@ export default function StudentWallet() {
           <p className="text-sm text-muted-foreground mt-1">Your Soulbound Token timeline — immutable proof of your achievements</p>
         </div>
 
-        <div className="glass-card p-4">
+        <div className="glass-card p-4 flex justify-between items-center">
           <p className="text-sm text-muted-foreground">Total SBTs: <span className="text-foreground font-bold">{sbts.length}</span></p>
+          {walletInfo.address && (
+            <a href={`${EXPLORER}/address/${walletInfo.address}`} target="_blank" rel="noopener noreferrer"
+              className="flex items-center gap-1 text-xs font-mono text-primary hover:underline">
+              <Wallet className="h-3 w-3" />
+              {walletInfo.address.slice(0, 6)}...{walletInfo.address.slice(-4)}
+              <ExternalLink className="h-3 w-3" />
+            </a>
+          )}
         </div>
 
         {sbts.length === 0 ? (
@@ -44,8 +63,19 @@ export default function StudentWallet() {
                     <p className="text-sm text-muted-foreground mb-2">{sbt.reason}</p>
                     <div className="flex justify-between text-xs">
                       <span className="text-muted-foreground">Issued by: <span className="text-foreground">{sbt.issuedBy}</span></span>
-                      <span className="font-mono text-primary/70">{sbt.txHash}</span>
+                      {sbt.txHash && sbt.txHash.startsWith('0x') ? (
+                        <a href={`${EXPLORER}/tx/${sbt.txHash}`} target="_blank" rel="noopener noreferrer"
+                          className="flex items-center gap-1 font-mono text-primary/70 hover:text-primary hover:underline">
+                          {sbt.txHash.slice(0, 10)}...{sbt.txHash.slice(-4)}
+                          <ExternalLink className="h-3 w-3" />
+                        </a>
+                      ) : (
+                        <span className="font-mono text-primary/70">{sbt.txHash}</span>
+                      )}
                     </div>
+                    {sbt.tokenId !== undefined && (
+                      <p className="text-xs text-muted-foreground mt-1">Token #{sbt.tokenId} · Polygon Amoy</p>
+                    )}
                   </div>
                 </div>
               ))}

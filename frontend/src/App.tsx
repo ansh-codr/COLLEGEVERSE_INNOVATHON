@@ -46,6 +46,7 @@ import RecruiterMicroGigs from "./pages/recruiter/RecruiterMicroGigs";
 import SignupStudent from "./pages/SignupStudent";
 import SignupCollege from "./pages/SignupCollege";
 import SignupRecruiter from "./pages/SignupRecruiter";
+import AdminPanel from "./pages/AdminPanel";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -100,6 +101,7 @@ const App = () => (
             <Route path="/recruiter/shortlist" element={<RequireAuth role="recruiter"><RecruiterShortlist /></RequireAuth>} />
             <Route path="/recruiter/tests" element={<RequireAuth role="recruiter"><RecruiterTests /></RequireAuth>} />
             <Route path="/recruiter/microgigs" element={<RequireAuth role="recruiter"><RecruiterMicroGigs /></RequireAuth>} />
+            <Route path="/admin" element={<RequireAuth role="faculty"><AdminPanel /></RequireAuth>} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>

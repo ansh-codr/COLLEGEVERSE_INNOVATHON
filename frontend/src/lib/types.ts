@@ -52,6 +52,8 @@ export interface MarketplaceItem {
 export interface WalletSBT {
   id: string; studentId: string; title: string; reason: string;
   issuedBy: string; date: string; txHash: string;
+  tokenId?: number; contractAddress?: string; network?: string;
+  walletAddress?: string;
 }
 
 export interface Community {

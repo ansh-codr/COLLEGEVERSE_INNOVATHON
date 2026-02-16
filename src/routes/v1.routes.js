@@ -11,6 +11,7 @@ const studentRoutes = require('./v1/student.routes');
 const userRoutes = require('./v1/user.routes');
 const compatRoutes = require('./v1/compat.routes');
 const aiRoutes = require('./v1/ai.routes');
+const sbtRoutes = require('./v1/sbt.routes');
 
 const router = express.Router();
 
@@ -25,5 +26,6 @@ router.use('/student', studentRoutes);
 router.use('/user', userRoutes);
 router.use('/compat', compatRoutes);
 router.use('/ai', aiRoutes);
+router.use('/sbt', sbtRoutes);
 
 module.exports = router;

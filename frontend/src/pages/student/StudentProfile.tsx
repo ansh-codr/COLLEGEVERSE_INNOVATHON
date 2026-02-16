@@ -1,9 +1,9 @@
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import { useAuth } from '@/lib/auth';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { api } from '@/lib/mockApi';
-import type { Student } from '@/lib/types';
-import { Save, X, Sparkles, Loader2, Copy, Check } from 'lucide-react';
+import type { Student, WalletSBT } from '@/lib/types';
+import { Save, X, Sparkles, Loader2, Copy, Check, Shield, ExternalLink } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 export default function StudentProfile() {
@@ -16,6 +16,13 @@ export default function StudentProfile() {
   const [aiResume, setAiResume] = useState('');
   const [aiLoading, setAiLoading] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [sbts, setSbts] = useState<WalletSBT[]>([]);
+
+  useEffect(() => {
+    if (student?.id) {
+      api.sbtGetTokens(student.id).then(setSbts).catch(() => {});
+    }
+  }, [student?.id]);
 
   const handleGenerateResume = async () => {
     setAiModal(true);
@@ -101,6 +108,31 @@ export default function StudentProfile() {
             ))}</div>
           )}
         </div>
+
+        {sbts.length > 0 && (
+          <div className="glass-card p-6">
+            <h3 className="font-semibold text-foreground mb-3 flex items-center gap-2">
+              <Shield className="h-4 w-4 text-primary" />SoulBound Tokens ({sbts.length})
+            </h3>
+            <div className="space-y-2">
+              {sbts.slice(0, 5).map((sbt, i) => (
+                <div key={sbt.id || i} className="flex justify-between items-center p-3 rounded-lg bg-secondary/30">
+                  <div>
+                    <span className="text-sm text-foreground font-medium">{sbt.title}</span>
+                    {sbt.tokenId !== undefined && <span className="text-xs text-muted-foreground ml-2">#{sbt.tokenId}</span>}
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-muted-foreground">{sbt.date?.split('T')[0]}</span>
+                    {sbt.txHash?.startsWith('0x') && (
+                      <a href={`https://amoy.polygonscan.com/tx/${sbt.txHash}`} target="_blank" rel="noopener noreferrer"
+                        className="text-primary hover:underline"><ExternalLink className="h-3 w-3" /></a>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {aiModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/60 backdrop-blur-sm" onClick={() => setAiModal(false)}>

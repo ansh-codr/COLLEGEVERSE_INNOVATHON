@@ -92,6 +92,26 @@ export const api = {
     return request(`/compat/wallet/${studentId}`, { method: 'POST', body: data });
   },
 
+  // SBT Admin (Web3)
+  async sbtListStudents() {
+    return request('/sbt/students', { auth: true });
+  },
+  async sbtVerifyStudent(studentId: string) {
+    return request(`/sbt/verify/${studentId}`, { method: 'POST', auth: true });
+  },
+  async sbtMint(studentId: string, title: string, reason: string) {
+    return request(`/sbt/mint/${studentId}`, { method: 'POST', body: { title, reason }, auth: true });
+  },
+  async sbtGetTokens(studentId: string): Promise<WalletSBT[]> {
+    return request(`/sbt/tokens/${studentId}`);
+  },
+  async sbtGetWallet(studentId: string) {
+    return request(`/sbt/wallet/${studentId}`);
+  },
+  async sbtGetStats() {
+    return request('/sbt/stats');
+  },
+
   // Leaderboards
   async getCollegeLeaderboard() {
     return request('/compat/leaderboard/colleges');
