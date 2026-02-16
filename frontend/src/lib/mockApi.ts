@@ -6,7 +6,7 @@ import type {
 import { auth } from './firebase';
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000/api/v1';
+const API_BASE = import.meta.env.VITE_API_BASE_URL || (import.meta.env.PROD ? '/api/v1' : 'http://localhost:4000/api/v1');
 
 const request = async <T>(path: string, options: { method?: string; body?: any; auth?: boolean } = {}): Promise<T> => {
   const { method = 'GET', body, auth: withAuth = false } = options;
