@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { Briefcase, AlertCircle } from 'lucide-react';
 import Navbar from '@/components/layout/Navbar';
 import DotLottieLoader from '@/components/Loader';
+import AuthIllustration from '@/components/AuthIllustration';
 
 const AUTH_DOT_LOTTIE_SRC =
   'https://lottie.host/7a753e3c-14a7-4657-b5dc-cd8c6b952ffd/F4qKTN4Ubz.lottie';
@@ -50,8 +51,13 @@ export default function SignupRecruiter() {
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
-      <div className="container-main pt-32 pb-20">
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-md mx-auto">
+      <div className="container-main pt-24 pb-16">
+        <div className="grid gap-10 lg:grid-cols-2 items-center">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="order-2 lg:order-1 w-full max-w-md mx-auto lg:mx-0"
+          >
           <div className="text-center mb-8">
             <Briefcase className="h-10 w-10 text-cyan mx-auto mb-3" />
             <h1 className="text-2xl font-bold text-foreground">Recruiter Sign Up</h1>
@@ -95,7 +101,9 @@ export default function SignupRecruiter() {
               <Link to="/login/recruiter" className="text-primary hover:underline font-medium">Sign in</Link>
             </p>
           </form>
-        </motion.div>
+          </motion.div>
+          <AuthIllustration className="order-1 lg:order-2" />
+        </div>
       </div>
     </div>
   );
