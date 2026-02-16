@@ -7,7 +7,7 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 
 # Install production deps only
-RUN npm install --omit=dev --ignore-scripts
+RUN npm install --omit=dev --ignore-scripts --legacy-peer-deps
 
 # Copy backend source
 COPY src/ ./src/
