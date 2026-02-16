@@ -7,11 +7,11 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 
 # Install production deps only
-RUN npm ci --omit=dev
+RUN npm install --omit=dev --ignore-scripts
 
 # Copy backend source
 COPY src/ ./src/
-COPY docs/ ./docs/
+COPY docs/openapi.yaml ./docs/openapi.yaml
 
 # Cloud Run sets PORT env var automatically
 ENV NODE_ENV=production

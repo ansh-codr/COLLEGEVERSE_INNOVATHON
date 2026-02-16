@@ -59,19 +59,19 @@ export default function Landing() {
   const [lbCategory, setLbCategory] = useState('all');
 
   useEffect(() => {
-    api.getColleges().then(setColleges);
-    api.getGigs().then(g => setGigs(g.filter(x => x.status === 'open').slice(0, 3)));
-    api.getMarketplaceItems().then(m => setItems(m.filter(x => x.status === 'available').slice(0, 4)));
-    api.getCollegeLeaderboard().then(setCollegeLeaderboard);
-    api.getStudentLeaderboard().then(setStudentLeaderboard);
+    api.getColleges().then(d => setColleges(Array.isArray(d) ? d : [])).catch(() => {});
+    api.getGigs().then(g => setGigs((Array.isArray(g) ? g : []).filter(x => x.status === 'open').slice(0, 3))).catch(() => {});
+    api.getMarketplaceItems().then(m => setItems((Array.isArray(m) ? m : []).filter(x => x.status === 'available').slice(0, 4))).catch(() => {});
+    api.getCollegeLeaderboard().then(d => setCollegeLeaderboard(Array.isArray(d) ? d : [])).catch(() => {});
+    api.getStudentLeaderboard().then(d => setStudentLeaderboard(Array.isArray(d) ? d : [])).catch(() => {});
   }, []);
 
   useEffect(() => {
     const cat = lbCategory === 'all' ? undefined : lbCategory;
-    api.getStudentLeaderboard(cat).then(setStudentLeaderboard);
+    api.getStudentLeaderboard(cat).then(d => setStudentLeaderboard(Array.isArray(d) ? d : [])).catch(() => {});
   }, [lbCategory]);
 
-  const filtered = colleges.filter(c => c.name.toLowerCase().includes(search.toLowerCase()) || c.location.toLowerCase().includes(search.toLowerCase()));
+  const filtered = colleges.filter(c => (c.name || '').toLowerCase().includes(search.toLowerCase()) || (c.location || '').toLowerCase().includes(search.toLowerCase()));
 
   return (
     <div className="min-h-screen bg-background">
@@ -165,9 +165,9 @@ export default function Landing() {
                     </div>
                     <span className="text-xs px-2 py-1 rounded-full bg-primary/10 text-primary font-medium">#{c.ranking}</span>
                   </div>
-                  <p className="text-xs text-muted-foreground mb-3">{c.description.slice(0, 80)}...</p>
+                  <p className="text-xs text-muted-foreground mb-3">{(c.description || '').slice(0, 80)}...</p>
                   <div className="flex justify-between items-center">
-                    <span className="text-xs text-muted-foreground">{c.type} · {c.studentCount.toLocaleString()} students</span>
+                    <span className="text-xs text-muted-foreground">{c.type} · {(c.studentCount || 0).toLocaleString()} students</span>
                     <button onClick={e => { e.stopPropagation(); setContactOpen(true); }} className="text-xs text-cyan hover:underline">Contact Senior</button>
                   </div>
                 </div>
@@ -256,7 +256,7 @@ export default function Landing() {
                   </div>
                   <p className="text-xs text-muted-foreground mb-3 line-clamp-2">{g.description}</p>
                   <div className="flex flex-wrap gap-1 mb-3">
-                    {g.skills.slice(0, 3).map(s => <span key={s} className="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary">{s}</span>)}
+                    {(g.skills || []).slice(0, 3).map(s => <span key={s} className="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary">{s}</span>)}
                   </div>
                   <div className="flex justify-between text-xs text-muted-foreground">
                     <span>{g.mode} · {g.duration}</span>
