@@ -157,7 +157,7 @@ const initSocket = (server, options = {}) => {
           return socket.emit('errorMessage', { message: 'Duplicate message blocked' });
         }
 
-        const moderation = moderationHook(trimmedContent);
+        const moderation = await moderationHook(trimmedContent);
         if (!moderation.allowed) {
           setImmediate(() => {
             logAudit({

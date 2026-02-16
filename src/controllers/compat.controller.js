@@ -707,4 +707,95 @@ module.exports = {
       return next(error);
     }
   },
+
+  async signup(req, res, next) {
+    try {
+      const { role, email, name, collegeId, department, company, position, password } = req.body || {};
+      if (!role || !email || !name) {
+        return ok(res, null);
+      }
+
+      if (role === 'student') {
+        // Check college domain
+        const colleges = await listDocs('colleges');
+        const college = colleges.find((c) => email.endsWith(`@${c.domain}`));
+        const resolvedCollegeId = college ? college.id : (collegeId || null);
+
+        const existing = await db.collection('students').where('email', '==', email).limit(1).get();
+        if (!existing.empty) {
+          return ok(res, { id: existing.docs[0].id, ...existing.docs[0].data() });
+        }
+
+        const doc = await createDoc('students', {
+          name,
+          email,
+          password: password || '',
+          collegeId: resolvedCollegeId,
+          verificationStatus: 'pending',
+          avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(name)}`,
+          skills: [],
+          points: { cultural: 0, sports: 0, education: 0, coding: 0 },
+          achievements: [],
+          certificates: [],
+          bio: '',
+        });
+        return ok(res, doc);
+      }
+
+      if (role === 'faculty') {
+        const existing = await db.collection('faculty').where('email', '==', email).limit(1).get();
+        if (!existing.empty) {
+          return ok(res, { id: existing.docs[0].id, ...existing.docs[0].data() });
+        }
+        // Also create roleOverride so auth bootstrap assigns correct role
+        const overrideId = email.replace(/[^a-z0-9]/gi, '_');
+        await db.collection('roleOverrides').doc(overrideId).set({
+          email,
+          role: 'faculty',
+          subRole: 'faculty',
+          collegeId: collegeId || null,
+          verificationStatus: 'verified',
+        }, { merge: true });
+
+        const doc = await createDoc('faculty', {
+          name,
+          email,
+          password: password || '',
+          collegeId: collegeId || null,
+          role: 'normal',
+          department: department || '',
+        });
+        return ok(res, doc);
+      }
+
+      if (role === 'recruiter') {
+        const existing = await db.collection('recruiters').where('email', '==', email).limit(1).get();
+        if (!existing.empty) {
+          return ok(res, { id: existing.docs[0].id, ...existing.docs[0].data() });
+        }
+        // Also create roleOverride
+        const overrideId = email.replace(/[^a-z0-9]/gi, '_');
+        await db.collection('roleOverrides').doc(overrideId).set({
+          email,
+          role: 'recruiter',
+          subRole: null,
+          collegeId: null,
+          verificationStatus: 'verified',
+        }, { merge: true });
+
+        const doc = await createDoc('recruiters', {
+          name,
+          email,
+          password: password || '',
+          company: company || '',
+          position: position || '',
+        });
+        return ok(res, doc);
+      }
+
+      return ok(res, null);
+    } catch (error) {
+      return next(error);
+    }
+  },
 };

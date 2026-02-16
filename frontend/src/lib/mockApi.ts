@@ -4,7 +4,7 @@ import type {
   Placement, Notice, ChatMessage, Competition, ShortlistEntry, Session
 } from './types';
 import { auth } from './firebase';
-import { signInWithEmailAndPassword } from 'firebase/auth';
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000/api/v1';
 
@@ -277,6 +277,26 @@ export const api = {
   // Contact
   async submitContactInquiry(data: { name: string; email: string; message: string; collegeId?: string }) {
     return request('/compat/contact', { method: 'POST', body: data });
+  },
+
+  // --- Signup ---
+  async signup(data: { email: string; password: string; role: 'student' | 'faculty' | 'recruiter'; name: string; collegeId?: string; department?: string; company?: string; position?: string }) {
+    // 1. Create Firebase Auth user
+    const cred = await createUserWithEmailAndPassword(auth, data.email, data.password);
+    // 2. Create backend profile + roleOverrides
+    const { password, ...profileData } = data;
+    await request('/compat/signup', { method: 'POST', body: profileData });
+    // 3. Bootstrap session
+    return request('/auth/bootstrap', { method: 'POST' });
+  },
+
+  // --- AI Resume ---
+  async generateResume(studentId?: string) {
+    return request('/api/v1/ai/generate-resume', { method: 'POST', body: { studentId } });
+  },
+
+  async getAiStatus() {
+    return request('/api/v1/ai/status');
   },
 
   resetAll() {

@@ -102,4 +102,7 @@ router.post('/contact', compat.submitContact);
 // Profile lookup
 router.get('/profile', compat.getProfileByEmail);
 
+// Signup (create student/faculty/recruiter profile in Firestore)
+router.post('/signup', compat.signup);
+
 module.exports = router;

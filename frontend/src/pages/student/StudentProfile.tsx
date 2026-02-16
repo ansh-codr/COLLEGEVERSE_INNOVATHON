@@ -3,7 +3,7 @@ import { useAuth } from '@/lib/auth';
 import { useState } from 'react';
 import { api } from '@/lib/mockApi';
 import type { Student } from '@/lib/types';
-import { Save, X, Sparkles } from 'lucide-react';
+import { Save, X, Sparkles, Loader2, Copy, Check } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 export default function StudentProfile() {
@@ -13,6 +13,30 @@ export default function StudentProfile() {
   const [editing, setEditing] = useState(false);
   const [form, setForm] = useState({ ...student });
   const [aiModal, setAiModal] = useState(false);
+  const [aiResume, setAiResume] = useState('');
+  const [aiLoading, setAiLoading] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  const handleGenerateResume = async () => {
+    setAiModal(true);
+    setAiLoading(true);
+    setAiResume('');
+    try {
+      const res = await api.generateResume(student.id) as any;
+      setAiResume(res.resume || res.data?.resume || 'Failed to generate resume. Please try again.');
+    } catch (err: any) {
+      setAiResume('Error generating resume: ' + (err?.message || 'Unknown error'));
+    } finally {
+      setAiLoading(false);
+    }
+  };
+
+  const handleCopyResume = () => {
+    navigator.clipboard.writeText(aiResume);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+    toast({ title: 'Resume copied to clipboard!' });
+  };
 
   const handleSave = async () => {
     await api.updateStudent(student.id, { name: form.name, bio: form.bio, skills: form.skills, github: form.github, linkedin: form.linkedin, leetcode: form.leetcode, codeforces: form.codeforces, codechef: form.codechef });
@@ -27,7 +51,7 @@ export default function StudentProfile() {
         <div className="flex justify-between items-center">
           <h1 className="text-2xl font-bold text-foreground">My Profile</h1>
           <div className="flex gap-2">
-            <button onClick={() => setAiModal(true)} className="px-3 py-2 rounded-lg bg-violet/10 text-violet text-sm font-medium hover:bg-violet/20 flex items-center gap-1"><Sparkles className="h-4 w-4" />AI Resume</button>
+            <button onClick={handleGenerateResume} className="px-3 py-2 rounded-lg bg-violet/10 text-violet text-sm font-medium hover:bg-violet/20 flex items-center gap-1"><Sparkles className="h-4 w-4" />AI Resume</button>
             {editing ? (
               <>
                 <button onClick={handleSave} className="px-3 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-medium flex items-center gap-1"><Save className="h-4 w-4" />Save</button>
@@ -80,12 +104,29 @@ export default function StudentProfile() {
 
         {aiModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/60 backdrop-blur-sm" onClick={() => setAiModal(false)}>
-            <div className="glass-card p-6 max-w-md w-full mx-4" onClick={e => e.stopPropagation()}>
-              <h3 className="font-bold text-foreground mb-3 flex items-center gap-2"><Sparkles className="h-5 w-5 text-violet" />AI Resume Helper</h3>
-              <div className="p-4 rounded-lg bg-secondary/50 text-sm text-muted-foreground whitespace-pre-line">
-                {`${student.name}\n${student.email}\n\nSkills: ${student.skills.join(', ')}\n\nExperience:\n- ${student.achievements.map(a => a.title).join('\n- ') || 'Build your achievements to enhance your resume'}\n\nCertifications:\n- ${student.certificates.map(c => c.title).join('\n- ') || 'Add certifications to stand out'}\n\n💡 This is a placeholder resume template. In production, an AI model would generate a tailored resume based on your profile data.`}
-              </div>
-              <button onClick={() => setAiModal(false)} className="mt-4 w-full px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-semibold">Close</button>
+            <div className="glass-card p-6 max-w-lg w-full mx-4 max-h-[80vh] flex flex-col" onClick={e => e.stopPropagation()}>
+              <h3 className="font-bold text-foreground mb-3 flex items-center gap-2"><Sparkles className="h-5 w-5 text-violet" />AI Resume Generator</h3>
+              {aiLoading ? (
+                <div className="flex flex-col items-center justify-center py-12 gap-3">
+                  <Loader2 className="h-8 w-8 animate-spin text-violet" />
+                  <p className="text-sm text-muted-foreground">Generating your AI-powered resume...</p>
+                </div>
+              ) : (
+                <>
+                  <div className="flex-1 overflow-y-auto p-4 rounded-lg bg-secondary/50 text-sm text-foreground whitespace-pre-line font-mono leading-relaxed">
+                    {aiResume}
+                  </div>
+                  <div className="flex gap-2 mt-4">
+                    <button onClick={handleCopyResume} className="flex-1 px-4 py-2 rounded-lg bg-secondary text-secondary-foreground text-sm font-semibold flex items-center justify-center gap-2">
+                      {copied ? <><Check className="h-4 w-4" />Copied!</> : <><Copy className="h-4 w-4" />Copy</>}
+                    </button>
+                    <button onClick={handleGenerateResume} className="flex-1 px-4 py-2 rounded-lg bg-violet/10 text-violet text-sm font-semibold flex items-center justify-center gap-2">
+                      <Sparkles className="h-4 w-4" />Regenerate
+                    </button>
+                    <button onClick={() => setAiModal(false)} className="px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-semibold">Close</button>
+                  </div>
+                </>
+              )}
             </div>
           </div>
         )}

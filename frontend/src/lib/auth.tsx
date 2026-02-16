@@ -9,6 +9,7 @@ interface AuthState {
   session: (Session & { user?: Student | Faculty | Recruiter }) | null;
   loading: boolean;
   login: (email: string, password: string) => Promise<void>;
+  signup: (data: { email: string; password: string; role: 'student' | 'faculty' | 'recruiter'; name: string; collegeId?: string; department?: string; company?: string; position?: string }) => Promise<void>;
   logout: () => void;
   isVerified: () => boolean;
   refreshUser: () => Promise<void>;
@@ -29,6 +30,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setLoading(true);
     try {
       const result = await api.login(email, password);
+      const sess = { role: result.role, userId: result.userId, token: result.token, user: result.user };
+      localStorage.setItem('cv_session', JSON.stringify(sess));
+      setSession(sess);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const signup = useCallback(async (data: { email: string; password: string; role: 'student' | 'faculty' | 'recruiter'; name: string; collegeId?: string; department?: string; company?: string; position?: string }) => {
+    setLoading(true);
+    try {
+      const result = await api.signup(data) as any;
       const sess = { role: result.role, userId: result.userId, token: result.token, user: result.user };
       localStorage.setItem('cv_session', JSON.stringify(sess));
       setSession(sess);
@@ -61,7 +74,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [session]);
 
   return (
-    <AuthContext.Provider value={{ session, loading, login, logout, isVerified, refreshUser }}>
+    <AuthContext.Provider value={{ session, loading, login, signup, logout, isVerified, refreshUser }}>
       {children}
     </AuthContext.Provider>
   );

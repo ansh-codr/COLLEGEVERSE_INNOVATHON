@@ -43,6 +43,9 @@ import RecruiterSearch from "./pages/recruiter/RecruiterSearch";
 import RecruiterShortlist from "./pages/recruiter/RecruiterShortlist";
 import RecruiterTests from "./pages/recruiter/RecruiterTests";
 import RecruiterMicroGigs from "./pages/recruiter/RecruiterMicroGigs";
+import SignupStudent from "./pages/SignupStudent";
+import SignupCollege from "./pages/SignupCollege";
+import SignupRecruiter from "./pages/SignupRecruiter";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -68,6 +71,9 @@ const App = () => (
             <Route path="/login/student" element={<LoginStudent />} />
             <Route path="/login/college" element={<LoginCollege />} />
             <Route path="/login/recruiter" element={<LoginRecruiter />} />
+            <Route path="/signup/student" element={<SignupStudent />} />
+            <Route path="/signup/college" element={<SignupCollege />} />
+            <Route path="/signup/recruiter" element={<SignupRecruiter />} />
             <Route path="/student/dashboard" element={<RequireAuth role="student"><StudentDashboard /></RequireAuth>} />
             <Route path="/student/profile" element={<RequireAuth role="student"><StudentProfile /></RequireAuth>} />
             <Route path="/student/wallet" element={<RequireAuth role="student"><StudentWallet /></RequireAuth>} />

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '@/lib/auth';
 import { motion } from 'framer-motion';
 import { GraduationCap, AlertCircle, Loader2 } from 'lucide-react';
@@ -62,6 +62,10 @@ export default function LoginStudent() {
               Verified: arjun@iitd.ac.in / pass123<br />
               Pending: priya@iitd.ac.in / pass123
             </div>
+            <p className="text-center text-sm text-muted-foreground">
+              Don't have an account?{' '}
+              <Link to="/signup/student" className="text-primary hover:underline font-medium">Sign up</Link>
+            </p>
           </form>
         </motion.div>
       </div>

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '@/lib/auth';
 import { motion } from 'framer-motion';
 import { Briefcase, AlertCircle, Loader2 } from 'lucide-react';
@@ -47,6 +47,10 @@ export default function LoginRecruiter() {
               {loading ? <><Loader2 className="h-4 w-4 animate-spin" /> Signing in...</> : 'Sign In'}
             </button>
             <div className="text-xs text-muted-foreground p-3 rounded-lg bg-secondary/50"><strong>Demo:</strong> vikram@techcorp.com / pass123</div>
+            <p className="text-center text-sm text-muted-foreground">
+              Don't have an account?{' '}
+              <Link to="/signup/recruiter" className="text-primary hover:underline font-medium">Sign up</Link>
+            </p>
           </form>
         </motion.div>
       </div>
