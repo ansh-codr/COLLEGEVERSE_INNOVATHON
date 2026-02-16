@@ -26,16 +26,16 @@ export default function Navbar() {
   if (isPortal) return null;
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 border-b border-border/50 bg-background/80 backdrop-blur-xl">
+    <nav className="fixed top-0 left-0 right-0 z-50 border-b border-border/60 bg-background/85 backdrop-blur-xl">
       <div className="container-main flex h-16 items-center justify-between">
-        <Link to="/" className="flex items-center gap-2 font-bold text-xl">
-          <GraduationCap className="h-7 w-7 text-primary" />
+        <Link to="/" className="flex items-center gap-2 font-bold text-lg md:text-xl cyber-heading">
+          <GraduationCap className="h-6 w-6 md:h-7 md:w-7 text-primary" />
           <span className="gradient-text">CollegeVerse</span>
         </Link>
 
         <div className="hidden md:flex items-center gap-6">
           {publicLinks.map(l => (
-            <Link key={l.href} to={l.href} className={`text-sm font-medium transition-colors hover:text-primary ${location.pathname === l.href ? 'text-primary' : 'text-muted-foreground'}`}>
+            <Link key={l.href} to={l.href} className={`text-xs md:text-sm cyber-label transition-colors hover:text-primary ${location.pathname === l.href ? 'text-primary' : 'text-muted-foreground'}`}>
               {l.label}
             </Link>
           ))}
@@ -44,15 +44,15 @@ export default function Navbar() {
         <div className="hidden md:flex items-center gap-3">
           {session ? (
             <>
-              <button onClick={() => navigate(dashboardPath)} className="flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+              <button onClick={() => navigate(dashboardPath)} className="flex items-center gap-2 text-xs cyber-label text-muted-foreground hover:text-primary transition-colors">
                 <LayoutDashboard className="h-4 w-4" /> Dashboard
               </button>
-              <button onClick={() => { logout(); navigate('/'); }} className="flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-destructive transition-colors">
+              <button onClick={() => { logout(); navigate('/'); }} className="flex items-center gap-2 text-xs cyber-label text-muted-foreground hover:text-destructive transition-colors">
                 <LogOut className="h-4 w-4" /> Logout
               </button>
             </>
           ) : (
-            <button onClick={() => navigate('/login')} className="px-5 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-semibold hover:opacity-90 transition-opacity glow-primary">
+            <button onClick={() => navigate('/login')} className="px-5 py-2 border border-primary text-primary text-xs cyber-label hover:bg-primary hover:text-primary-foreground transition-all chamfer-sm glow-primary min-h-11">
               Login
             </button>
           )}
@@ -65,21 +65,21 @@ export default function Navbar() {
 
       <AnimatePresence>
         {open && (
-          <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="md:hidden border-t border-border/50 bg-background/95 backdrop-blur-xl overflow-hidden">
+          <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="md:hidden border-t border-border/60 bg-background/95 backdrop-blur-xl overflow-hidden">
             <div className="container-main py-4 space-y-3">
               {publicLinks.map(l => (
-                <Link key={l.href} to={l.href} onClick={() => setOpen(false)} className="block text-sm font-medium text-muted-foreground hover:text-primary py-1">
+                <Link key={l.href} to={l.href} onClick={() => setOpen(false)} className="block text-xs cyber-label text-muted-foreground hover:text-primary py-1.5">
                   {l.label}
                 </Link>
               ))}
               <div className="pt-3 border-t border-border/50">
                 {session ? (
                   <>
-                    <button onClick={() => { navigate(dashboardPath); setOpen(false); }} className="block w-full text-left text-sm font-medium text-muted-foreground hover:text-foreground py-1">Dashboard</button>
-                    <button onClick={() => { logout(); navigate('/'); setOpen(false); }} className="block w-full text-left text-sm font-medium text-destructive py-1">Logout</button>
+                    <button onClick={() => { navigate(dashboardPath); setOpen(false); }} className="block w-full text-left text-xs cyber-label text-muted-foreground hover:text-primary py-1.5">Dashboard</button>
+                    <button onClick={() => { logout(); navigate('/'); setOpen(false); }} className="block w-full text-left text-xs cyber-label text-destructive py-1.5">Logout</button>
                   </>
                 ) : (
-                  <button onClick={() => { navigate('/login'); setOpen(false); }} className="w-full px-5 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-semibold">Login</button>
+                  <button onClick={() => { navigate('/login'); setOpen(false); }} className="w-full px-5 py-2 border border-primary text-primary text-xs cyber-label chamfer-sm min-h-11">Login</button>
                 )}
               </div>
             </div>

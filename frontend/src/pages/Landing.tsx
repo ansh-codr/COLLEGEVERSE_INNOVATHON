@@ -89,35 +89,39 @@ export default function Landing() {
         <div className="container-main relative z-10 py-20">
           <div className="flex flex-col lg:flex-row items-center gap-12">
             <motion.div initial="hidden" animate="visible" variants={fadeUp} transition={{ duration: 0.6 }} className="max-w-2xl flex-1">
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-medium mb-6">
-                <span className="w-2 h-2 rounded-full bg-primary animate-pulse" /> THE FUTURE OF COLLEGE ECOSYSTEMS
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 border border-primary/30 text-primary text-[11px] cyber-label mb-6 chamfer-sm">
+                <span className="w-2 h-2 rounded-full bg-primary animate-pulse" /> SIGNAL ONLINE // COLLEGE ECOSYSTEM FEED
               </div>
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight mb-6">
-                <span className="text-foreground">ONE PLATFORM.</span><br />
+              <h1 className="text-4xl sm:text-5xl lg:text-7xl font-black tracking-tight mb-6 cyber-heading leading-[1.1]">
+                <span className="text-foreground cyber-glitch" data-text="ONE PLATFORM.">ONE PLATFORM.</span><br />
                 <span className="gradient-text italic">EVERY COLLEGE.</span><br />
                 <span className="gradient-text italic">EVERY STUDENT.</span>
               </h1>
-              <p className="text-lg text-muted-foreground mb-8 max-w-xl border-l-2 border-primary/40 pl-4">
+              <p className="text-base sm:text-lg text-muted-foreground mb-8 max-w-xl border-l-2 border-primary/40 pl-4">
                 CollegeVerse connects students, faculty, and recruiters in a unified ecosystem — with verified identities, MicroGigs, Marketplace, SBT wallets, and more.
+                <span className="inline-block w-2 h-5 align-middle bg-primary ml-2 animate-pulse" />
               </p>
               <div className="flex flex-wrap gap-3 mb-10">
-                <button onClick={() => navigate('/colleges')} className="px-6 py-3 rounded-lg bg-primary text-primary-foreground font-semibold tracking-wider text-sm uppercase hover:opacity-90 transition-all glow-primary">
+                <button onClick={() => navigate('/colleges')} className="px-6 py-3 border-2 border-primary text-primary min-h-11 cyber-label text-xs hover:bg-primary hover:text-primary-foreground transition-all chamfer-sm glow-primary">
                   Get Started <ArrowRight className="inline h-4 w-4 ml-1" />
                 </button>
-                <button onClick={() => navigate('/leaderboard')} className="px-6 py-3 rounded-lg bg-secondary text-secondary-foreground font-semibold hover:bg-secondary/80 transition-colors border border-border">
+                <button onClick={() => navigate('/leaderboard')} className="px-6 py-3 border-2 border-violet text-violet min-h-11 cyber-label text-xs hover:bg-violet hover:text-violet-foreground transition-all chamfer-sm">
                   View Leaderboards
                 </button>
-                <button onClick={() => navigate('/login')} className="px-6 py-3 rounded-lg border border-primary/30 text-primary font-semibold hover:bg-primary/10 transition-colors">
+                <button onClick={() => navigate('/login')} className="px-6 py-3 border border-border text-foreground min-h-11 cyber-label text-xs hover:border-primary hover:text-primary hover:shadow-[var(--box-shadow-neon-sm)] transition-all chamfer-sm">
                   Login
                 </button>
               </div>
               {/* Stats row */}
-              <div className="flex gap-6 glass-card p-4 max-w-md">
-                <div><p className="text-2xl font-bold text-foreground">50+</p><p className="text-xs text-muted-foreground uppercase tracking-wider">Colleges</p></div>
-                <div className="w-px bg-border" />
-                <div><p className="text-2xl font-bold text-primary">10K+</p><p className="text-xs text-muted-foreground uppercase tracking-wider">Students</p></div>
-                <div className="w-px bg-border" />
-                <div><p className="text-2xl font-bold text-foreground">₹5L+</p><p className="text-xs text-muted-foreground uppercase tracking-wider">Earned</p></div>
+              <div className="cyber-terminal p-4 max-w-md">
+                <p className="text-[10px] cyber-label text-primary mb-3">&gt; live-network-stats</p>
+                <div className="flex gap-4 sm:gap-6">
+                  <div><p className="text-2xl font-bold text-foreground cyber-heading">50+</p><p className="text-[10px] text-muted-foreground cyber-label">Colleges</p></div>
+                  <div className="w-px bg-border" />
+                  <div><p className="text-2xl font-bold text-primary cyber-heading">10K+</p><p className="text-[10px] text-muted-foreground cyber-label">Students</p></div>
+                  <div className="w-px bg-border" />
+                  <div><p className="text-2xl font-bold text-foreground cyber-heading">₹5L+</p><p className="text-[10px] text-muted-foreground cyber-label">Earned</p></div>
+                </div>
               </div>
             </motion.div>
 

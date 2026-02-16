@@ -37,6 +37,7 @@ router.get('/', async (req, res) => {
     memoryUsage: process.memoryUsage(),
     env: config.env,
     dbConnected: dbStatus.ok,
+    dbError: dbStatus.ok ? null : (dbStatus.error || 'Unknown Firestore error'),
     storageBucketConfigured: Boolean(config.firebase.storageBucket),
     storageBucket: config.firebase.storageBucket || null,
     lastAnalyticsSnapshotTime,

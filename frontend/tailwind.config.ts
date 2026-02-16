@@ -12,7 +12,9 @@ export default {
     },
     extend: {
       fontFamily: {
-        sans: ["Inter", "system-ui", "sans-serif"],
+        sans: ["JetBrains Mono", "Fira Code", "Consolas", "monospace"],
+        heading: ["Orbitron", "Share Tech Mono", "monospace"],
+        label: ["Share Tech Mono", "monospace"],
         mono: ["JetBrains Mono", "monospace"],
       },
       colors: {

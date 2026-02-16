@@ -1,7 +1,13 @@
 const path = require('path');
 const dotenv = require('dotenv');
 
-const env = process.env.NODE_ENV || 'development';
+const inferEnv = () => {
+  if (process.env.NODE_ENV) return process.env.NODE_ENV;
+  if (process.env.RENDER || process.env.RENDER_EXTERNAL_URL || process.env.K_SERVICE) return 'production';
+  return 'development';
+};
+
+const env = inferEnv();
 
 const envFile = path.resolve(process.cwd(), `.env.${env}`);
 dotenv.config({ path: envFile });
