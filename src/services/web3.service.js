@@ -49,6 +49,21 @@ const init = () => {
   return { provider, adminWallet, contract };
 };
 
+const getMintGasOverrides = () => {
+  const maxFeeGwei = process.env.MINT_MAX_FEE_GWEI;
+  const maxPriorityGwei = process.env.MINT_MAX_PRIORITY_GWEI;
+  if (!maxFeeGwei && !maxPriorityGwei) return {};
+
+  const overrides = {};
+  if (maxFeeGwei) {
+    overrides.maxFeePerGas = ethers.parseUnits(maxFeeGwei, 'gwei');
+  }
+  if (maxPriorityGwei) {
+    overrides.maxPriorityFeePerGas = ethers.parseUnits(maxPriorityGwei, 'gwei');
+  }
+  return overrides;
+};
+
 /**
  * Mint an SBT to a student's wallet
  * @param {string} toAddress - Student's wallet address
@@ -76,7 +91,7 @@ const mintSBT = async (toAddress, reason, metadata = {}) => {
 
   logger.info(`[Web3] Minting SBT to ${toAddress} | Reason: ${reason}`);
 
-  const tx = await c.mint(toAddress, uri, reason);
+  const tx = await c.mint(toAddress, uri, reason, getMintGasOverrides());
   const receipt = await tx.wait();
 
   // Parse the SBTMinted event to get tokenId

@@ -44,10 +44,57 @@ async function main() {
   const [, recipient] = await hre.ethers.getSigners();
   const tokenUri = "data:application/json;base64,eyJuYW1lIjoiQ29sbGVnZVZlcnNlIFNCVCIsImRlc2NyaXB0aW9uIjoiTG9jYWwgZGV2IHNlbGYtdGVzdCBtaW50In0=";
   const mintTx = await sbt.mint(recipient.address, tokenUri, 'Local dev self-test mint');
-  await mintTx.wait();
+  const mintReceipt = await mintTx.wait();
   const total = await sbt.totalMinted();
-  console.log('✅ Self-test mint OK -> recipient:', recipient.address);
+  console.log('Self-test mint OK -> recipient:', recipient.address);
   console.log('totalMinted:', total.toString());
+
+  // Gas accounting (useful for estimating Polygon sponsorship costs)
+  const gasUsed = mintReceipt?.gasUsed ?? null;
+  if (gasUsed != null) {
+    console.log('mint.gasUsed:', gasUsed.toString());
+
+    const estimatePol = (gwei) => {
+      const gasPriceWei = BigInt(gwei) * 1_000_000_000n;
+      const costWei = gasUsed * gasPriceWei;
+      // Convert wei -> POL as a decimal string (POL has 18 decimals like ETH)
+      return hre.ethers.formatUnits(costWei, 18);
+    };
+
+    const summarize = (gwei) => {
+      const perMint = estimatePol(gwei);
+      // Keep arithmetic in wei for accuracy
+      const gasPriceWei = BigInt(gwei) * 1_000_000_000n;
+      const oneWei = gasUsed * gasPriceWei;
+      const thousandWei = oneWei * 1000n;
+      const hundredKWei = oneWei * 100000n;
+      return {
+        gwei,
+        perMint,
+        per1k: hre.ethers.formatUnits(thousandWei, 18),
+        per100k: hre.ethers.formatUnits(hundredKWei, 18),
+      };
+    };
+
+    const cases = [5, 15, 36].map(summarize);
+    console.log('Estimated POL cost (gasUsed * gasPrice):');
+    for (const c of cases) {
+      console.log(`  @${c.gwei} gwei -> perMint=${c.perMint} POL; 1k=${c.per1k} POL; 100k=${c.per100k} POL`);
+    }
+  }
+
+  // Soulbound proof: attempt a transfer and show it reverts.
+  // tokenId is (totalMinted - 1) since totalMinted increments after mint.
+  const tokenId = total - 1n;
+  try {
+    // Any transfer should revert because _update blocks transfers after mint.
+    await sbt.connect(recipient).transferFrom(recipient.address, deployer.address, tokenId);
+    console.log('❌ Unexpected: transferFrom succeeded (should be soulbound)');
+  } catch (err) {
+    const msg = err && err.shortMessage ? err.shortMessage : (err && err.message ? err.message : String(err));
+    console.log('✅ Soulbound proof: transferFrom reverted as expected');
+    console.log('revert:', msg);
+  }
 
   // Start backend server in the same process with patched env.
   // Important: require config AFTER env vars are set.

@@ -16,22 +16,40 @@ const dotenv = require('dotenv');
 dotenv.config({ path: path.resolve(__dirname, '../.env.development') });
 
 const RPC_URL = process.env.POLYGON_AMOY_RPC_URL || 'https://rpc-amoy.polygon.technology';
-const PRIVATE_KEY = process.env.ADMIN_WALLET_PRIVATE_KEY;
+const RAW_PRIVATE_KEY = process.env.ADMIN_WALLET_PRIVATE_KEY;
+const normalizePrivateKey = (value) => {
+  if (!value) return '';
+  let key = value.trim();
+  if ((key.startsWith('"') && key.endsWith('"')) || (key.startsWith("'") && key.endsWith("'"))) {
+    key = key.slice(1, -1).trim();
+  }
+  // Add 0x prefix if missing and looks like a 64-hex string.
+  if (!key.startsWith('0x') && /^[0-9a-fA-F]{64}$/.test(key)) {
+    key = `0x${key}`;
+  }
+  return key;
+};
+const PRIVATE_KEY = normalizePrivateKey(RAW_PRIVATE_KEY);
+const MAX_FEE_GWEI = process.env.DEPLOY_MAX_FEE_GWEI;
+const MAX_PRIORITY_GWEI = process.env.DEPLOY_MAX_PRIORITY_GWEI;
 
 if (!PRIVATE_KEY) {
   console.error('❌ Set ADMIN_WALLET_PRIVATE_KEY in .env.development');
+  console.log('   Ensure it is a 64-hex private key (with or without 0x).');
   console.log('   Generate one: node -e "console.log(require(\'ethers\').Wallet.createRandom().privateKey)"');
   process.exit(1);
 }
 
-// Minimal compiled contract ABI + bytecode
-// To get this, compile with solc or use Remix IDE: https://remix.ethereum.org
-// Paste contracts/CollegeVerseSBT.sol, compile, copy ABI + bytecode
-//
-// For hackathon speed: Use Remix IDE to deploy, then paste address below.
+if (!/^0x[0-9a-fA-F]{64}$/.test(PRIVATE_KEY)) {
+  console.error('❌ ADMIN_WALLET_PRIVATE_KEY is not a valid 32-byte hex key.');
+  console.log('   Expected format: 0x + 64 hex characters (no spaces).');
+  console.log(`   Current length: ${PRIVATE_KEY.length} characters`);
+  process.exit(1);
+}
 
-const ABI = [
-  'constructor(address initialOwner)',
+const USE_LOCAL_COMPILE = process.env.USE_LOCAL_COMPILE === '1';
+
+const COMPILED_ABI = [
   'function mint(address to, string uri, string reason) public returns (uint256)',
   'function totalMinted() public view returns (uint256)',
   'function tokenURI(uint256 tokenId) public view returns (string)',
@@ -40,12 +58,69 @@ const ABI = [
   'event SBTMinted(address indexed to, uint256 indexed tokenId, string reason)',
 ];
 
-// IMPORTANT: Replace this with the actual bytecode from Remix compilation
-// 1. Go to https://remix.ethereum.org
-// 2. Create new file, paste contracts/CollegeVerseSBT.sol
-// 3. Compile with Solidity 0.8.20+
-// 4. Copy "Bytecode" from compilation details
-const BYTECODE = process.env.SBT_BYTECODE || '';
+const compileLocally = () => {
+  // Lazy-load solc to avoid cost when not needed
+  // eslint-disable-next-line global-require
+  const solc = require('solc');
+
+  const sourcePath = path.resolve(__dirname, '../contracts/CollegeVerseSBT.sol');
+  const source = fs.readFileSync(sourcePath, 'utf8');
+
+  const findImports = (importPath) => {
+    try {
+      const fullPath = require.resolve(importPath, { paths: [process.cwd()] });
+      return { contents: fs.readFileSync(fullPath, 'utf8') };
+    } catch (e) {
+      try {
+        const fullPath = path.resolve(process.cwd(), importPath);
+        return { contents: fs.readFileSync(fullPath, 'utf8') };
+      } catch (e2) {
+        return { error: `File not found: ${importPath}` };
+      }
+    }
+  };
+
+  const input = {
+    language: 'Solidity',
+    sources: { 'CollegeVerseSBT.sol': { content: source } },
+    settings: {
+      optimizer: { enabled: true, runs: 200 },
+      evmVersion: 'paris',
+      outputSelection: { '*': { '*': ['abi', 'evm.bytecode.object'] } },
+    },
+  };
+
+  const output = JSON.parse(solc.compile(JSON.stringify(input), { import: findImports }));
+  if (output.errors?.length) {
+    const fatal = output.errors.filter((e) => e.severity === 'error');
+    for (const e of output.errors) {
+      // eslint-disable-next-line no-console
+      console.error(e.formattedMessage);
+    }
+    if (fatal.length) process.exit(1);
+  }
+
+  const contract = output.contracts['CollegeVerseSBT.sol']?.CollegeVerseSBT;
+  if (!contract) {
+    // eslint-disable-next-line no-console
+    console.error('Could not compile CollegeVerseSBT locally');
+    process.exit(1);
+  }
+
+  return {
+    abi: contract.abi,
+    bytecode: '0x' + contract.evm.bytecode.object,
+  };
+};
+
+// If we don't have bytecode or we explicitly request local compile, compile now.
+let ABI = COMPILED_ABI;
+let BYTECODE = process.env.SBT_BYTECODE || '';
+if (!BYTECODE || USE_LOCAL_COMPILE) {
+  const compiled = compileLocally();
+  ABI = compiled.abi;
+  BYTECODE = compiled.bytecode;
+}
 
 async function main() {
   if (!BYTECODE) {
@@ -90,7 +165,23 @@ async function main() {
   console.log(`  Balance: ${ethers.formatEther(balance)} MATIC`);
 
   const factory = new ethers.ContractFactory(ABI, BYTECODE, wallet);
-  const contract = await factory.deploy(wallet.address);
+  const overrides = {};
+  if (MAX_FEE_GWEI) {
+    overrides.maxFeePerGas = ethers.parseUnits(MAX_FEE_GWEI, 'gwei');
+  }
+  if (MAX_PRIORITY_GWEI) {
+    overrides.maxPriorityFeePerGas = ethers.parseUnits(MAX_PRIORITY_GWEI, 'gwei');
+  }
+
+  const constructorAbi = ABI.find((entry) => entry.type === 'constructor');
+  const constructorInputs = constructorAbi?.inputs || [];
+  const deployArgs = [];
+
+  if (constructorInputs.length === 1 && constructorInputs[0].type === 'address') {
+    deployArgs.push(wallet.address);
+  }
+
+  const contract = await factory.deploy(...deployArgs, overrides);
   await contract.waitForDeployment();
 
   const address = await contract.getAddress();
